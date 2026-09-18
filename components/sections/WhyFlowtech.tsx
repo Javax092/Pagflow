@@ -1,0 +1,4 @@
+import { Reveal } from "@/components/ui/Reveal";
+import { SectionContainer } from "@/components/ui/SectionContainer";
+const reasons = [["Diagnóstico antes da solução", "Não tentamos encaixar a empresa em um produto pronto."], ["Tecnologia proporcional ao problema", "Construímos somente o nível de solução necessário."], ["Construção incremental", "Começamos pelo que gera valor e evoluímos conforme o uso real."]] as const;
+export function WhyFlowtech() { return <SectionContainer id="sobre" className="why-section"><p className="movement-label">04 / FlowtechAM</p><Reveal className="section-intro"><h2>Tecnologia próxima da operação.</h2></Reveal><div className="why-grid">{reasons.map(([title, text], i) => <article key={title}><span>{String(i + 1).padStart(2, "0")}</span><h3>{title}</h3><p>{text}</p></article>)}</div></SectionContainer>; }

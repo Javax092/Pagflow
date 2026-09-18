@@ -1,0 +1,8 @@
+export type HeroContent = { label: string; headline: string; subheadline: string; cta: string };
+export const defaultHero: HeroContent = { label: "FlowtechAM / Tecnologia aplicada", headline: "Transformamos processos manuais em operações mais inteligentes.", subheadline: "Sistemas, automações, CRM e experiências digitais construídas a partir da realidade da sua empresa.", cta: "Analisar minha operação" };
+const variants: { terms: string[]; content: HeroContent }[] = [
+  { terms: ["crm_whatsapp", "crm_followup", "crm_lead_perdido", "crm_whatsapp_desorganizado"], content: { label: "CRM + WhatsApp", headline: "Seus clientes chegam pelo WhatsApp. Seu processo comercial não precisa ficar preso nele.", subheadline: "Centralize contatos, oportunidades e follow-ups antes que novos clientes se percam.", cta: "Analisar meu processo comercial" } },
+  { terms: ["site_profissional", "site_captacao", "site_sem_presenca"], content: { label: "Sites / Presença digital", headline: "Sua empresa merece mais do que depender apenas do Instagram.", subheadline: "Construa uma presença profissional para gerar confiança e transformar visitas em contatos.", cta: "Avaliar minha presença digital" } },
+  { terms: ["sistemas", "sistema_planilhas", "sistema_processos_manuais", "sistema_falta_controle"], content: { label: "Sistemas / Operação", headline: "Sua operação ainda depende de WhatsApp, planilhas e controles manuais?", subheadline: "Descubra onde tecnologia pode organizar processos e reduzir retrabalho.", cta: "Mapear minha operação" } },
+];
+export function heroForCampaign(campaign = "", content = "") { const value = `${campaign} ${content}`.toLowerCase(); return variants.find(({ terms }) => terms.some((term) => value.includes(term)))?.content ?? defaultHero; }
