@@ -4,7 +4,6 @@ export function Methodology() {
   return (
     <section className="section home-method" id="metodo">
       <div className="section-container">
-        <p className="movement-label">04 / Método</p>
         <h2>
           Não começamos pela ferramenta.
           <br />

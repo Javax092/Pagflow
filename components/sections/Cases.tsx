@@ -29,7 +29,7 @@ export function Cases() {
   return (
     <section className="section home-cases" id="cases">
       <div className="section-container">
-        <p className="movement-label">02 / Cases</p>
+        <p className="movement-label">Casos</p>
         {/* header (e não div) para não herdar as regras de ".home-cases > div > div" */}
         <header className="section-intro">
           <h2>Tecnologia colocada em operação.</h2>

@@ -135,7 +135,7 @@ export function Services() {
       aria-labelledby="services-title"
     >
       <div className="section-container">
-        <p className="movement-label">03 / Soluções</p>
+        <p className="movement-label">Soluções</p>
         <div className="section-intro">
           <h2 id="services-title">
             O que a FlowtechAM constrói para a sua operação.

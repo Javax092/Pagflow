@@ -42,7 +42,7 @@ export function DiagnosticExpress() {
       />
       <div className="diagnostic-backdrop" aria-hidden="true" />
       <div className="section-container">
-        <p className="movement-label">01 / Diagnóstico expresso</p>
+        <p className="movement-label">Diagnóstico expresso</p>
         <h2>O que você quer melhorar?</h2>
         <div className="express-grid">
           {options.map(([value, label], index) => (
