@@ -30,19 +30,86 @@ type DiagnosticState = {
 
 const DiagnosticContext = createContext<DiagnosticState | null>(null);
 
-export const initialPainPoints: Record<string, SDRLead["painPoint"]> = { "commercial-process": "sales", operation: "control", "digital-presence": "opportunities", automation: "manual", growth: "sales", discovery: "opportunities" };
+export const initialPainPoints: Record<string, SDRLead["painPoint"]> = {
+  "commercial-process": "sales",
+  operation: "control",
+  "digital-presence": "opportunities",
+  automation: "manual",
+  growth: "sales",
+  discovery: "opportunities",
+};
 
-export function DiagnosticProvider({ children, sourceContext = "home", initialProblem }: { children: ReactNode; sourceContext?: string; initialProblem?: string }) {
+export function DiagnosticProvider({
+  children,
+  sourceContext = "home",
+  initialProblem,
+}: {
+  children: ReactNode;
+  sourceContext?: string;
+  initialProblem?: string;
+}) {
   const [step, setStep] = useState(0);
   const [problem, setProblem] = useState(initialProblem ?? "");
-  const [lead, setLead] = useState({ ...initialLead, painPoint: initialPainPoints[initialProblem ?? ""] ?? initialLead.painPoint });
+  const [lead, setLead] = useState({
+    ...initialLead,
+    painPoint: initialPainPoints[initialProblem ?? ""] ?? initialLead.painPoint,
+  });
   const attribution = useAttribution();
-  const startDiagnostic = (nextProblem: string) => { setProblem(nextProblem); setLead((old) => ({ ...old, painPoint: initialPainPoints[nextProblem] ?? old.painPoint })); setStep(1); };
-  return <DiagnosticContext.Provider value={{ step, setStep, lead, setLead, sourceContext, attribution, initialProblem: problem, startDiagnostic }}>{children}</DiagnosticContext.Provider>;
+  const startDiagnostic = (nextProblem: string) => {
+    setProblem(nextProblem);
+    setLead((old) => ({
+      ...old,
+      painPoint: initialPainPoints[nextProblem] ?? old.painPoint,
+    }));
+    setStep(1);
+  };
+  return (
+    <DiagnosticContext.Provider
+      value={{
+        step,
+        setStep,
+        lead,
+        setLead,
+        sourceContext,
+        attribution,
+        initialProblem: problem,
+        startDiagnostic,
+      }}
+    >
+      {children}
+    </DiagnosticContext.Provider>
+  );
 }
 
 export function useDiagnostic() {
   const value = useContext(DiagnosticContext);
-  if (!value) throw new Error("useDiagnostic deve ser usado dentro de DiagnosticProvider");
+  if (!value)
+    throw new Error(
+      "useDiagnostic deve ser usado dentro de DiagnosticProvider",
+    );
   return value;
+}
+/** Rola até o stepper do diagnóstico (.express-flow) e foca o título do passo. */
+export function revealDiagnosticFlow() {
+  requestAnimationFrame(() => {
+    const flow = document.querySelector<HTMLElement>(".express-flow");
+    if (!flow) return;
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    flow.scrollIntoView({
+      behavior: reduce ? "auto" : "smooth",
+      block: "center",
+    });
+    flow.querySelector<HTMLElement>("[data-step-heading]")?.focus();
+  });
+}
+
+/** Campanha e conteúdo da URL atual, para anexar aos eventos. */
+export function campaignParams() {
+  const params = new URLSearchParams(window.location.search);
+  return {
+    campaign: params.get("utm_campaign") ?? undefined,
+    content: params.get("utm_content") ?? undefined,
+  };
 }
