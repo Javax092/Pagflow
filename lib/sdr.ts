@@ -46,7 +46,3 @@ export function buildWhatsAppMessage(lead: SDRLead, sourceContext = "home") {
     "Gostaria de conversar sobre possíveis melhorias.",
   ].join("\n");
 }
-
-export function buildWhatsAppUrl(number: string, lead: SDRLead, sourceContext?: string) {
-  return number ? `https://wa.me/${number}?text=${encodeURIComponent(buildWhatsAppMessage(lead, sourceContext))}` : "";
-}

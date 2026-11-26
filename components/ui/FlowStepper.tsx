@@ -3,7 +3,8 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useId, useRef, useState } from "react";
 import { WHATSAPP_NUMBER } from "@/config/contact";
-import { buildWhatsAppUrl, labels, type SDRLead } from "@/lib/sdr";
+import { buildWhatsAppUrl } from "@/lib/whatsapp";
+import { buildWhatsAppMessage, labels, type SDRLead } from "@/lib/sdr";
 import { useDiagnostic } from "@/components/ui/DiagnosticContext";
 import { trackEvent } from "@/lib/analytics";
 
@@ -39,6 +40,7 @@ export function FlowStepper({ compact = false }: { compact?: boolean }) {
   const navigate = (next: number) => {
     setDirection(next > step ? 1 : -1);
     setErrors([]);
+    setSubmitState("idle");
     setStep(next);
     trackEvent("diagnostic_step", { sourceContext, sourceSection: "diagnostic", step: next + 1 });
   };
@@ -64,12 +66,11 @@ export function FlowStepper({ compact = false }: { compact?: boolean }) {
       trackEvent("diagnostic_complete", { sourceContext });
       trackEvent("lead_created", { sourceContext });
       trackEvent("qualified_lead", { sourceContext });
-      if (whatsappUrl) { trackEvent("whatsapp_click", { sourceContext, afterDiagnostic: true }); window.open(whatsappUrl, "_blank", "noopener,noreferrer"); }
     } catch { setSubmitState("error"); }
   };
 
   const current = steps[Math.min(step, 4)];
-  const whatsappUrl = buildWhatsAppUrl(WHATSAPP_NUMBER, lead, sourceContext);
+  const whatsappUrl = buildWhatsAppUrl(WHATSAPP_NUMBER, buildWhatsAppMessage(lead, sourceContext));
   const variants = {
     enter: (travel: number) => ({ opacity: 0, x: reducedMotion ? 0 : travel * 24 }),
     center: { opacity: 1, x: 0 },
@@ -94,9 +95,13 @@ export function FlowStepper({ compact = false }: { compact?: boolean }) {
           {complete && <div className="sdr-step sdr-result">
             <p className="column-label">Diagnóstico inicial</p><h3 data-step-heading tabIndex={-1}>Existem oportunidades principalmente em:</h3>
             <ul>{recommendations[lead.painPoint].map((item) => <li key={item}>{item}</li>)}</ul><p>O próximo passo é validar essas hipóteses com o contexto real da operação.</p>
-            <form className="sdr-fields" onSubmit={submitContact} noValidate>{([ ["name", "Nome", "text"], ["company", "Empresa", "text"], ["whatsapp", "WhatsApp", "tel"], ["email", "E-mail (opcional)", "email"] ] as const).map(([field, label, type]) => <label key={field}><span>{label}</span><input id={`${formId}-${field}`} type={type} value={lead[field]} autoComplete={field === "name" ? "name" : field === "whatsapp" ? "tel" : field === "email" ? "email" : "organization"} aria-invalid={field !== "email" && errors.includes(field)} onChange={(event) => setLead({ ...lead, [field]: event.target.value })} />{field !== "email" && errors.includes(field) && <small>Preencha este campo.</small>}</label>)}<input className="honeypot" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" /><button className="sdr-whatsapp" type="submit" disabled={submitState === "loading"}>{submitState === "loading" ? "Registrando…" : "Continuar no WhatsApp →"}</button></form>
-            <p className={`submit-status ${submitState}`} role="status">{submitState === "success" ? "Contato registrado. Abrimos o WhatsApp para continuar." : submitState === "error" ? <>Não foi possível registrar agora. {whatsappUrl && <a href={whatsappUrl} target="_blank" rel="noreferrer" onClick={() => trackEvent("whatsapp_click", { sourceContext, afterDiagnostic: true, leadPersisted: false })}>Continuar pelo WhatsApp sem registro.</a>}</> : ""}</p>
-            <button className="sdr-back" type="button" onClick={() => navigate(4)}>← Revisar resposta</button>
+            <form className="sdr-fields" onSubmit={submitContact} noValidate>{([ ["name", "Nome", "text"], ["company", "Empresa", "text"], ["whatsapp", "WhatsApp", "tel"], ["email", "E-mail (opcional)", "email"] ] as const).map(([field, label, type]) => <label key={field}><span>{label}</span><input id={`${formId}-${field}`} type={type} value={lead[field]} readOnly={submitState === "loading" || submitState === "success"} autoComplete={field === "name" ? "name" : field === "whatsapp" ? "tel" : field === "email" ? "email" : "organization"} aria-invalid={field !== "email" && errors.includes(field)} onChange={(event) => setLead({ ...lead, [field]: event.target.value })} />{field !== "email" && errors.includes(field) && <small>Preencha este campo.</small>}</label>)}<input className="honeypot" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" />{submitState === "success" ? (
+              whatsappUrl && <a className="sdr-whatsapp" href={whatsappUrl} rel="noreferrer" onClick={() => trackEvent("whatsapp_click", { sourceContext, afterDiagnostic: true })}>Abrir WhatsApp →</a>
+            ) : (
+              <button className="sdr-whatsapp" type="submit" disabled={submitState === "loading"}>{submitState === "loading" ? "Registrando…" : "Registrar diagnóstico →"}</button>
+            )}</form>
+            <p className={`submit-status ${submitState}`} role="status">{submitState === "success" ? "Contato registrado." : submitState === "error" ? <>Não foi possível registrar agora. {whatsappUrl && <a href={whatsappUrl} rel="noreferrer" onClick={() => trackEvent("whatsapp_click", { sourceContext, afterDiagnostic: true, leadPersisted: false })}>Continuar pelo WhatsApp sem registro.</a>}</> : ""}</p>
+            <button className="sdr-back" type="button" disabled={submitState === "loading" || submitState === "success"} onClick={() => navigate(4)}>← Revisar resposta</button>
           </div>}
         </motion.div>
       </AnimatePresence>

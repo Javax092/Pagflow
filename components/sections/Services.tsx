@@ -2,6 +2,7 @@
 
 import { useRef, useState, type KeyboardEvent } from "react";
 import { WHATSAPP_NUMBER } from "@/config/contact";
+import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { TrackedLink } from "@/components/ui/TrackedLink";
 import { useDiagnostic } from "@/components/ui/DiagnosticContext";
 import { trackEvent } from "@/lib/analytics";
@@ -82,7 +83,6 @@ const services: Service[] = [
   },
 ];
 
-const whatsapp = WHATSAPP_NUMBER;
 const section = "services";
 
 export function Services() {
@@ -91,11 +91,10 @@ export function Services() {
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
   const current = services[active];
 
-  const waHref = whatsapp
-    ? `https://wa.me/${whatsapp}?text=${encodeURIComponent(
-        `Olá! Vim pelo site da FlowtechAM e quero conversar sobre ${current.label}.`,
-      )}`
-    : null;
+  const waHref = buildWhatsAppUrl(
+    WHATSAPP_NUMBER,
+    `Olá! Vim pelo site da FlowtechAM e quero conversar sobre ${current.label}.`,
+  );
 
   function select(index: number, focus = false) {
     setActive(index);
@@ -212,7 +211,6 @@ export function Services() {
                 <a
                   className="button subtle"
                   href={waHref}
-                  target="_blank"
                   rel="noopener noreferrer"
                   onClick={() =>
                     trackEvent("whatsapp_click", {
